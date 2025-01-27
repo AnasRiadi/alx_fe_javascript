@@ -1,4 +1,4 @@
-  let quotes = JSON.parse(localStorage.getItem('quotes')) || [
+ let quotes = JSON.parse(localStorage.getItem('quotes')) || [
       { text: "Believe you can and you're halfway there.", category: "Motivation" },
       { text: "Success is not final, failure is not fatal.", category: "Success" },
       { text: "Do what you can with what you have.", category: "Inspiration" }
@@ -22,6 +22,21 @@
     async function syncWithServer() {
       await fetchQuotesFromServer();
       alert('Quotes synced with server!');
+    }
+
+    async function postQuoteToServer(quote) {
+      try {
+        const response = await fetch(serverURL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(quote)
+        });
+        return await response.json();
+      } catch (error) {
+        console.error('Error posting quote to server:', error);
+      }
     }
 
     function populateCategories() {
@@ -83,36 +98,15 @@
       const newQuoteText = document.getElementById('newQuoteText').value;
       const newQuoteCategory = document.getElementById('newQuoteCategory').value;
       if (newQuoteText && newQuoteCategory) {
-        quotes.push({ text: newQuoteText, category: newQuoteCategory });
+        const newQuote = { text: newQuoteText, category: newQuoteCategory };
+        quotes.push(newQuote);
         localStorage.setItem('quotes', JSON.stringify(quotes));
         populateCategories();
         filterQuotes();
+        postQuoteToServer(newQuote);
       } else {
         alert('Please enter both a quote and a category.');
       }
-    }
-
-    function exportToJsonFile() {
-      const dataStr = JSON.stringify(quotes, null, 2);
-      const blob = new Blob([dataStr], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'quotes.json';
-      link.click();
-    }
-
-    function importFromJsonFile(event) {
-      const fileReader = new FileReader();
-      fileReader.onload = function(event) {
-        const importedQuotes = JSON.parse(event.target.result);
-        quotes.push(...importedQuotes);
-        localStorage.setItem('quotes', JSON.stringify(quotes));
-        populateCategories();
-        filterQuotes();
-        alert('Quotes imported successfully!');
-      };
-      fileReader.readAsText(event.target.files[0]);
     }
 
     document.getElementById('newQuote').addEventListener('click', showRandomQuote);
