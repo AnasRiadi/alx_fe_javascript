@@ -50,6 +50,19 @@
       document.body.removeChild(a);
     }
 
+    function importFromJsonFile(event) {
+      const fileReader = new FileReader();
+      fileReader.onload = function(event) {
+        const importedQuotes = JSON.parse(event.target.result);
+        quotes.push(...importedQuotes);
+        localStorage.setItem('quotes', JSON.stringify(quotes));
+        populateCategories();
+        filterQuotes();
+        alert('Quotes imported successfully!');
+      };
+      fileReader.readAsText(event.target.files[0]);
+    }
+
     function populateCategories() {
       const categories = [...new Set(quotes.map(q => q.category))];
       const categoryFilter = document.getElementById('categoryFilter');
