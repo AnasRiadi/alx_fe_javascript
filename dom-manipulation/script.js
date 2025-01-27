@@ -1,8 +1,27 @@
-    let quotes = JSON.parse(localStorage.getItem('quotes')) || [
+
+ let quotes = JSON.parse(localStorage.getItem('quotes')) || [
       { text: "Believe you can and you're halfway there.", category: "Motivation" },
       { text: "Success is not final, failure is not fatal.", category: "Success" },
       { text: "Do what you can with what you have.", category: "Inspiration" }
     ];
+
+    const serverURL = 'https://jsonplaceholder.typicode.com/posts';
+
+    async function syncWithServer() {
+      try {
+        const response = await fetch(serverURL);
+        const serverQuotes = await response.json();
+        if (JSON.stringify(serverQuotes) !== JSON.stringify(quotes)) {
+          quotes = serverQuotes;
+          localStorage.setItem('quotes', JSON.stringify(quotes));
+          populateCategories();
+          filterQuotes();
+          alert('Quotes synced with server!');
+        }
+      } catch (error) {
+        console.error('Error syncing with server:', error);
+      }
+    }
 
     function populateCategories() {
       const categories = [...new Set(quotes.map(q => q.category))];
@@ -99,3 +118,5 @@
     populateCategories();
     createAddQuoteForm();
     filterQuotes();
+    syncWithServer();
+    setInterval(syncWithServer, 60000);
