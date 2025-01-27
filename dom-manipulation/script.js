@@ -118,10 +118,19 @@ function addQuote() {
   }
 }
 
+function exportToJsonFile() {
+  const jsonBlob = new Blob([JSON.stringify(quotes, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(jsonBlob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'quotes.json';
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
 document.getElementById('newQuote').addEventListener('click', showRandomQuote);
 populateCategories();
 createAddQuoteForm();
 filterQuotes();
 syncWithServer();
 setInterval(syncWithServer, 60000);
-
