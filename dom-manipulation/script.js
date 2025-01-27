@@ -24,25 +24,15 @@ async function syncWithServer() {
   alert('Quotes synced with server!');
 }
 
-async function syncQuotes() {
-  try {
-    await fetchQuotesFromServer();
-    alert('Quotes successfully synced!');
-  } catch (error) {
-    console.error('Error syncing quotes with server:', error);
-  }
-}
-
 async function postQuoteToServer(quote) {
   try {
-    const response = await fetch(serverURL, {
+    await fetch(serverURL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(quote)
     });
-    return await response.json();
   } catch (error) {
     console.error('Error posting quote to server:', error);
   }
@@ -118,14 +108,30 @@ function addQuote() {
   }
 }
 
+function importFromJsonFile(event) {
+  const fileReader = new FileReader();
+  fileReader.onload = function(event) {
+    try {
+      const importedQuotes = JSON.parse(event.target.result);
+      quotes.push(...importedQuotes);
+      localStorage.setItem('quotes', JSON.stringify(quotes));
+      populateCategories();
+      filterQuotes();
+      alert('Quotes imported successfully!');
+    } catch (error) {
+      alert('Error importing quotes. Please check the file format.');
+      console.error('Import error:', error);
+    }
+  };
+  fileReader.readAsText(event.target.files[0]);
+}
+
 function exportToJsonFile() {
-  const jsonBlob = new Blob([JSON.stringify(quotes, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(jsonBlob);
+  const blob = new Blob([JSON.stringify(quotes, null, 2)], { type: 'application/json' });
   const link = document.createElement('a');
-  link.href = url;
+  link.href = URL.createObjectURL(blob);
   link.download = 'quotes.json';
   link.click();
-  URL.revokeObjectURL(url);
 }
 
 document.getElementById('newQuote').addEventListener('click', showRandomQuote);
