@@ -1,4 +1,4 @@
-let quotes = JSON.parse(localStorage.getItem('quotes')) || [
+    let quotes = JSON.parse(localStorage.getItem('quotes')) || [
       { text: "Believe you can and you're halfway there.", category: "Motivation" },
       { text: "Success is not final, failure is not fatal.", category: "Success" },
       { text: "Do what you can with what you have.", category: "Inspiration" }
@@ -37,6 +37,17 @@ let quotes = JSON.parse(localStorage.getItem('quotes')) || [
       } catch (error) {
         console.error('Error posting quote to server:', error);
       }
+    }
+
+    function exportToJsonFile() {
+      const blob = new Blob([JSON.stringify(quotes, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'quotes.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
     }
 
     function populateCategories() {
